@@ -1,0 +1,5 @@
+<form method="POST" action="/user/{{user.id}}">
+	{{form.csrf_token}}
+	{{ form.increment.label }} {{ form.increment(size=20) }}
+	<input type="submit" value="Submit">
+</form>
