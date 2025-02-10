@@ -8,19 +8,21 @@ from pprint import pprint
 from flask_wtf.csrf import CSRFProtect
 import forms
 import os 
+from flask_bootstrap import Bootstrap
 
 from flask_login import LoginManager, login_user, login_required, current_user
 login_manager = LoginManager()
 
 app = Flask(__name__)
 login_manager.init_app(app)
+Bootstrap(app)
 
 @login_manager.user_loader
 def load_user(user_id):
     return database.Users.query.get(int(user_id))
 
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite://"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////usr/src/app/data/database.db"
 app.config["SECRET_KEY"] = os.urandom(32)
 database.db.init_app(app)
 with app.app_context():
@@ -29,7 +31,7 @@ with app.app_context():
 @app.route("/")
 def hello_world():
     users = database.db.session.execute( database.db.select(database.Users) ).scalars()
-    return render_template('base.html', users=users)
+    return render_template('index.html', users=users)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -71,11 +73,12 @@ def login():
             print(f"{user} logged in")
             login_user(user)
             pprint(f"{user.name} {user.is_authenticated}")
-            return(redirect(url_for('user_detail', id=user.id)))
+            #return(redirect(url_for('user_detail', id=user.id)))
+            return(redirect(url_for('hello_world')))
 
 
     return(render_template('login.html', form=form))
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)

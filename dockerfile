@@ -1,4 +1,11 @@
 FROM docker.io/python
-RUN pip install sqlalchemy
-COPY database.py .
-ENTRYPOINT ["python", "database.py"]
+WORKDIR /usr/src/app
+RUN mkdir /usr/src/app/data
+#COPY requirements.txt ./
+COPY app.py ./
+COPY database.py ./
+COPY forms.py ./
+COPY requirements.txt ./
+COPY templates ./templates
+RUN pip install --no-cache-dir -r requirements.txt
+ENTRYPOINT ["python",  "app.py"]

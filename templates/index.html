@@ -1,0 +1,31 @@
+<!doctype html>
+<h1>Duck Gang Pushup Tracker</h1>
+{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<ul class=flashes>
+		{% for message in messages %}
+			<li> {{message}} </li>
+		{%endfor%}
+	</ul>
+	{%endif%}
+{%endwith%}
+
+<ul>
+	{% for user in users %}
+		<li> {{user.name}}: {{user.number}}</li>
+	{% endfor %}
+</ul>
+
+{% if current_user.id %}
+	<form method="GET" action="/user/{{current_user.id}}">
+		<input type="submit" value="Enter your pushups">
+	</form>
+{%endif%}
+
+<form method="GET" action="/login">
+	<input type="submit" value="Login">
+</form>
+
+<form method="GET" action="/register">
+	<input type="submit" value="Register">
+</form>
