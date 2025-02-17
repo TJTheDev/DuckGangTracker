@@ -1,31 +1,65 @@
 <!doctype html>
+<head>
+	<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pushup Tracker</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
 <h1>Duck Gang Pushup Tracker</h1>
-{% with messages = get_flashed_messages() %}
-	{% if messages %}
-	<ul class=flashes>
-		{% for message in messages %}
-			<li> {{message}} </li>
-		{%endfor%}
-	</ul>
-	{%endif%}
-{%endwith%}
-
-<ul>
-	{% for user in users %}
-		<li> {{user.name}}: {{user.number}}</li>
-	{% endfor %}
-</ul>
 
 {% if current_user.id %}
 	<form method="GET" action="/user/{{current_user.id}}">
 		<input type="submit" value="Enter your pushups">
 	</form>
+
+{% else %}
+	<form method="GET" action="/login">
+		<input type="submit" value="Login">
+	</form>
+
+	<form method="GET" action="/register">
+		<input type="submit" value="Register">
+	</form>
+
 {%endif%}
+<body>
 
-<form method="GET" action="/login">
-	<input type="submit" value="Login">
-</form>
+{% for user in users %}
+<p> </p>
+<p> </p>
 
-<form method="GET" action="/register">
-	<input type="submit" value="Register">
-</form>
+<div class="card">
+    <div class="infos">
+        <div class="info">
+            <div>
+                <p class="name">
+			{{user.name}} 
+                </p>
+            </div>
+            <div class="stats">
+                    <p class="flex flex-col">
+                        Today
+                        <span class="state-value">
+				{{user.get_daily_total()}} 
+                        </span>
+                    </p>
+                    <p class="flex">
+                        Total
+                        <span class="state-value">
+				{{user.get_total()}} 
+                        </span>
+                    </p>
+            </div>
+        </div>
+    </div>
+	{% if current_user.id %}
+		{% if current_user.id == user.id %}
+		<form class="request" method="GET" action="/user/{{current_user.id}}">
+		<input type="submit" value="Enter your pushups">
+		</form>
+		{% endif %}
+	{% endif %}
+</div>
+{% endfor %}
+
+</body>

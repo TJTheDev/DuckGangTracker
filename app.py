@@ -10,6 +10,8 @@ import forms
 import os 
 from flask_bootstrap import Bootstrap
 
+from datetime import datetime
+
 from flask_login import LoginManager, login_user, login_required, current_user
 login_manager = LoginManager()
 
@@ -38,7 +40,8 @@ def hello_world():
 def register():
     form =  forms.LoginForm()
     if request.method == 'POST'and form.validate_on_submit():
-        user = database.Users(name = request.form['name'], password = request.form['password'], number = 0)
+        #user = database.Users(name = request.form['name'], password = request.form['password'], number = 0)
+        user = database.Users(name = request.form['name'], password = request.form['password'])
         database.db.session.add(user)
         database.db.session.commit()
         return(redirect(url_for('login')))
@@ -55,7 +58,8 @@ def user_detail(id):
     pprint(current_user)
     user = database.db.get_or_404(database.Users, id)
     if request.method == 'POST': 
-        user.number += int(request.form['increment'])
+        user.pushups.append( database.Pushups(date=datetime.now(), number=int(request.form['increment'])))
+        #user.number += int(request.form['increment'])
         database.db.session.add(user)
         database.db.session.commit()
         return(redirect(url_for('hello_world')))

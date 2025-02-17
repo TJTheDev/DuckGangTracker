@@ -7,5 +7,6 @@ COPY database.py ./
 COPY forms.py ./
 COPY requirements.txt ./
 COPY templates ./templates
+COPY static ./static
 RUN pip install --no-cache-dir -r requirements.txt
 ENTRYPOINT ["python",  "app.py"]
