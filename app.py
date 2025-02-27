@@ -30,6 +30,14 @@ database.db.init_app(app)
 with app.app_context():
     database.db.create_all()
 
+
+@app.route("/all")
+def page():
+    Teams = database.db.session.execute( database.db.select(database.Team) ).scalars()
+    return render_template('all.html', teams=Teams)
+
+
+
 @app.route("/")
 def hello_world():
     users = database.db.session.execute( database.db.select(database.Users) ).scalars()
@@ -38,15 +46,16 @@ def hello_world():
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    form =  forms.LoginForm()
+    form =  forms.RegisterForm()
+    form.team.choices = [(team.id, team.name) for team in database.db.session.execute( database.db.select(database.Team) ).scalars()]
+
     if request.method == 'POST'and form.validate_on_submit():
-        #user = database.Users(name = request.form['name'], password = request.form['password'], number = 0)
-        user = database.Users(name = request.form['name'], password = request.form['password'])
-        database.db.session.add(user)
+        team = database.db.get_or_404(database.Team, request.form['team'])
+        team.users.append( database.Users(name = request.form['name'], password = request.form['password'], team_id = request.form['team']) )
+        database.db.session.add(team)
         database.db.session.commit()
         return(redirect(url_for('login')))
     return(render_template('register.html', form=form))
-
 
 
 @app.route("/user/<int:id>", methods=['GET', 'POST'])
@@ -59,7 +68,7 @@ def user_detail(id):
     user = database.db.get_or_404(database.Users, id)
     if request.method == 'POST': 
         user.pushups.append( database.Pushups(date=datetime.now(), number=int(request.form['increment'])))
-        #user.number += int(request.form['increment'])
+        user.team.get_total()
         database.db.session.add(user)
         database.db.session.commit()
         return(redirect(url_for('hello_world')))
@@ -82,6 +91,19 @@ def login():
 
 
     return(render_template('login.html', form=form))
+
+@app.route("/teams", methods=['GET', 'POST'])
+def teams():
+    form = forms.TeamForm()
+    if request.method == 'POST' and  form.validate_on_submit():
+        team = database.Team( name=request.form['name'], total=0 )
+        database.db.session.add(team)
+        database.db.session.commit()
+        return(redirect(url_for('hello_world')))
+
+    form = forms.TeamForm()
+    return( render_template('team.html', form=form))
+
 
 
 if __name__ == '__main__':

@@ -1,0 +1,24 @@
+<!doctype html>
+<head>
+	<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pushup Tracker</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<h1>Duck Gang Pushup Tracker</h1>
+
+<body>
+
+	{% for team in teams %}
+	<div id="{{team.name}}_col" style="float:left; width:300px;">
+		<h2> {{ team.name }}: {{ team.total}} </h2>
+		<ul>
+		{% for user in team.users %}
+		<li>{{ user.name }}: {{user.get_total()}} </li>
+		{% endfor %}
+		</ul>
+    </div>
+    {% endfor %}
+</div>
+		
+</body>

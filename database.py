@@ -13,6 +13,8 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
+def is_today(obj):
+    return( obj.date.date() == datetime.today().date())
 
 
 class Users(UserMixin, db.Model):
@@ -21,20 +23,14 @@ class Users(UserMixin, db.Model):
     name: Mapped[str]  
     password: Mapped[str]
     pushups: Mapped[List["Pushups"]] = relationship(back_populates="parent")
+    team_id: Mapped[int] = mapped_column( ForeignKey("Team.id") )
+    team: Mapped["Team"] = relationship( back_populates="users" ) 
 
     def get_total(self):
-        #total = sum(self.pushups) 
-        #for pushup in self.pushups:
-        #    total += pushup.number
         return(sum( [pushup.number for pushup in  self.pushups ] ))
 
     def get_daily_total(self):
-        total = 0
-        for pushup in self.pushups:
-            if pushup.date.date() == datetime.today().date():
-                total += pushup.number
-        return(total)
-
+      return( sum( [ pushup.number for pushup in  list( filter(  is_today, self.pushups ) ) ] ))
 
 
 class Pushups(UserMixin, db.Model):
@@ -44,3 +40,14 @@ class Pushups(UserMixin, db.Model):
     number: Mapped[int]
     parent_id: Mapped[int] = mapped_column( ForeignKey("Users.id") )
     parent: Mapped["Users"] = relationship( back_populates="pushups" ) 
+
+
+class Team(UserMixin, db.Model):
+    __tablename__ = "Team"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    total: Mapped[int]
+    users: Mapped[Optional[List["Users"]]] = relationship(back_populates="team")
+
+    def get_total(self):
+        self.total = sum( [ user.get_total() for user in self.users ] )
